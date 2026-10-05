@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gestion des apprenants</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Source+Serif+4:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+:root{--bg:#f2f5f7;--card:#fff;--txt:#14252f;--mut:#566872;--pri:#145a73;--dk:#0c2a38;--gold:#a9772a;--ok:#1e7a46;--err:#b83227;--bd:#d6dee3;--serif:'Source Serif 4',Georgia,serif}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:'Public Sans',system-ui,sans-serif;background:var(--bg);color:var(--txt);line-height:1.55}
+a{color:inherit}
+.w{max-width:1120px;margin:0 auto;padding:0 24px}
+.top{background:#fff;border-bottom:3px solid var(--gold);position:sticky;top:0;z-index:5}
+.top .w{display:flex;align-items:center;gap:28px;height:64px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:var(--serif);font-weight:700;font-size:1.15rem;color:var(--dk)}
+.brand svg{width:34px;height:34px}
+.top nav2{display:flex}
+.menu{margin-left:auto;display:flex;gap:26px;font-size:.92rem;font-weight:500}
+.menu a{text-decoration:none;color:var(--mut)}.menu a:hover{color:var(--pri)}
+.cta{background:var(--pri);color:#fff;padding:9px 16px;border-radius:3px;text-decoration:none;font-weight:600;font-size:.92rem}
+.cta:hover{background:var(--dk)}
+.cta.l{background:#fff;color:var(--dk)}.cta.o{background:transparent;border:1px solid rgba(255,255,255,.55);color:#fff}
+.hero{background:linear-gradient(100deg,#0c2a38 40%,#145a73);color:#fff}
+.hero .w{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;padding-top:72px;padding-bottom:72px}
+.hero h1{font-family:var(--serif);font-size:clamp(2rem,4.2vw,3.1rem);line-height:1.12;margin:0 0 18px;font-weight:700}
+.hero p{font-size:1.08rem;max-width:34em;color:#d3e2e9;margin:0 0 28px}
+.hero .bt{display:flex;gap:12px;flex-wrap:wrap}
+.hero svg.art{width:100%;height:auto}
+.facts{background:#fff;border-bottom:1px solid var(--bd)}
+.facts .w{display:grid;grid-template-columns:repeat(4,1fr)}
+.facts div{padding:20px 18px;border-left:1px solid var(--bd);font-size:.9rem;color:var(--mut)}
+.facts div:first-child{border-left:0;padding-left:0}
+.facts b{display:block;color:var(--dk);font-size:1rem}
+section.blk{padding:68px 0}
+.blk h2.t{font-family:var(--serif);font-size:1.9rem;color:var(--dk);margin:0 0 10px;line-height:1.2}
+.blk p.lead{color:var(--mut);max-width:40em;margin:0 0 36px}
+.reg{border-top:2px solid var(--dk)}
+.reg a{display:grid;grid-template-columns:56px 1fr auto;gap:22px;align-items:start;padding:26px 0;border-bottom:1px solid var(--bd);text-decoration:none}
+.reg a:hover h3{color:var(--pri)}
+.reg h3{margin:0 0 6px;font-family:var(--serif);font-size:1.25rem;color:var(--dk)}
+.reg p{margin:0;color:var(--mut);max-width:44em}
+.reg .ic{width:44px;height:44px;color:var(--pri)}
+.st{font-size:.82rem;font-weight:600;padding:3px 10px;border:1px solid var(--ok);color:var(--ok);border-radius:3px;white-space:nowrap}
+.st.b{border-color:var(--mut);color:var(--mut)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;counter-reset:s}
+.steps div{padding:0 28px 0 0;position:relative}
+.steps div::before{counter-increment:s;content:counter(s);display:flex;width:36px;height:36px;border-radius:50%;background:var(--pri);color:#fff;align-items:center;justify-content:center;font-weight:700;margin-bottom:14px}
+.steps h3{margin:0 0 6px;font-family:var(--serif);color:var(--dk);font-size:1.15rem}
+.steps p{margin:0;color:var(--mut);font-size:.95rem}
+.band{background:var(--pri);color:#fff}
+.band .w{display:grid;grid-template-columns:64px 1fr;gap:24px;padding-top:56px;padding-bottom:56px;align-items:start}
+.band svg{width:56px;height:56px}
+.band h2{font-family:var(--serif);margin:0 0 8px;font-size:1.6rem}
+.band p{margin:0;max-width:44em;color:#d3e2e9}
+footer.ft{background:var(--dk);color:#9fb5c0;font-size:.88rem;padding:28px 0}
+footer.ft .w{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.apphead{max-width:1000px;margin:0 auto;padding:56px 20px 4px}
+.apphead h2{font-family:var(--serif);font-size:1.7rem;color:var(--dk);margin:0 0 6px}
+.apphead p{margin:0;color:var(--mut)}
+@media(max-width:760px){.hero .w{grid-template-columns:1fr;padding-top:44px;padding-bottom:44px}.hero svg.art{display:none}.menu a:not(.cta){display:none}.facts .w{grid-template-columns:1fr 1fr}.facts div:nth-child(3){border-left:0;padding-left:0}.steps{grid-template-columns:1fr;gap:26px}.reg a{grid-template-columns:44px 1fr}.reg .st{display:none}}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+nav{display:flex;gap:6px;padding:0 20px;flex-wrap:wrap}
+nav button{padding:10px 14px;border:1px solid var(--bd);border-bottom:0;border-radius:8px 8px 0 0;background:var(--card);color:var(--mut);cursor:pointer;font-size:.95rem}
+nav button.on{color:var(--pri);font-weight:700}
+main{padding:20px;max-width:1000px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:18px;margin-bottom:16px}
+h2{margin:0 0 10px;font-size:1.05rem}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:end}
+label{display:block;font-size:.85rem;color:var(--mut);margin-bottom:4px}
+select,input[type=file],input[type=text],input[type=number]{padding:7px;border:1px solid var(--bd);border-radius:6px;background:var(--bg);color:var(--txt);max-width:100%}
+input[type=number]{width:80px}
+.btn{padding:10px 16px;border:0;border-radius:8px;background:var(--pri);color:#fff;font-size:.95rem;cursor:pointer}
+.btn.sec{background:transparent;color:var(--pri);border:1px solid var(--pri)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.msg{margin-top:10px;font-size:.9rem}.ok{color:var(--ok)}.err{color:var(--err)}
+.scroll{overflow:auto;max-height:420px}
+table{border-collapse:collapse;width:100%;font-size:.85rem}
+th,td{border-bottom:1px solid var(--bd);padding:6px 8px;text-align:left;white-space:nowrap}
+th{position:sticky;top:0;background:var(--card)}
+td img{height:36px;border-radius:4px;vertical-align:middle}
+.soon{color:var(--mut);text-align:center;padding:30px 10px}
+.hide{display:none}
+details{margin-top:12px;font-size:.9rem}
+details td input{width:110px}
+
+/* ===== FICHE SCOLAIRE (modèle vierge, rempli par le JavaScript) ===== */
+#prevWrap{overflow:hidden;border:1px solid var(--bd);border-radius:6px}
+#prev{width:937px}
+#pz{display:none}
+.page{width:937px;height:812px;background:#fffac8;color:#145a73;font:11px/1.2 Helvetica,Arial,sans-serif;display:flex;position:relative;overflow:hidden;break-after:page;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.page::after{content:'';position:absolute;left:468px;top:24px;bottom:24px;border-left:1px dashed #145a73}
+.col{width:50%;padding:28px 22px}
+.page .l{padding-right:20px}.page .r{padding-left:20px}
+.ln{display:flex;align-items:flex-end;gap:4px;height:19px;white-space:nowrap}
+.v{flex:1;border-bottom:1px solid #145a73;font-weight:700;min-height:14px;padding:0 3px;overflow:hidden;line-height:14px}
+.v.w{flex:0 0 74px}.v.m{flex:0 0 74px;font-size:8.5px;padding:0 1px}.v.d{flex:0 0 54px;font-size:8.5px;padding:0 1px}.v.s{flex:1;min-width:0;font-size:5.5px}
+.bar{background:#145a73;color:#fff;font-weight:700;text-align:center;padding:4px;font-size:10px}
+.ttl{font-weight:700;text-align:center;margin:12px 0 8px;font-size:11px}
+hr{border:0;border-top:1px solid #145a73;margin:8px 0 6px}
+.ex{width:100%;height:100%;border-collapse:collapse;table-layout:fixed}
+.ex td,.ex th{border:1px solid #145a73;padding:4px;font-size:9px;vertical-align:top;white-space:normal;background:none;position:static}
+.ex td.bar{background:#145a73;color:#fff;text-align:center;font-size:10px}
+.ex .h{height:40px}.ex .a{height:58px}.ex .b{height:58px}
+.fn{font-size:7px;margin-top:8px}
+.col.r{position:relative}
+.ph{position:absolute;top:24px;right:22px;width:66px;height:84px;border:1px solid #145a73;overflow:hidden;background:#fff}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+@page{size:937px 812px;margin:0}
+@media print{
+  body>*:not(#pz){display:none!important}
+  #pz{display:block}
+  body{background:none}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-cam" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><circle cx="12" cy="12.5" r="3.5"/><path d="M8.5 6l1.2-2h4.6l1.2 2"/></symbol>
+<symbol id="i-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></symbol>
+<symbol id="i-id" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M5.8 16c.6-2.2 5.8-2.2 6.4 0M14 10h4M14 14h4"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.6-3 7.8-7 10-4-2.2-7-5.4-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+</defs></svg>
+<header class="top"><div class="w">
+  <a class="brand" href="#accueil"><svg viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="4" fill="#145a73"/><path d="M7 25V12l10-5 10 5v13" fill="none" stroke="#fff" stroke-width="1.8"/><path d="M13 25v-7h8v7M10 12h14" fill="none" stroke="#e1b863" stroke-width="1.8"/></svg>Gestion des apprenants</a>
+  <div class="menu"><a href="#fonctions">Fonctionnalités</a><a href="#methode">Méthode</a><a href="#confidentialite">Confidentialité</a><a class="cta" href="#outil">Espace de travail</a></div>
+</div></header>
+<main id="accueil" style="padding:0;max-width:none">
+<div class="hero"><div class="w">
+  <div>
+    <h1>Les dossiers de vos apprenants, en ordre et prêts à imprimer</h1>
+    <p>Importez votre liste une seule fois. Les photos sont renommées selon le matricule, et les fiches scolaires se remplissent à partir des informations de chaque élève.</p>
+    <div class="bt"><a class="cta l" href="#outil">Ouvrir l'espace de travail</a><a class="cta o" href="#fonctions">Voir les fonctionnalités</a></div>
+  </div>
+  <svg class="art" viewBox="0 0 520 420" role="img" aria-label="Fiche scolaire avec photo et cartes de photos renommées">
+    <rect x="170" y="24" width="320" height="372" rx="4" fill="#fffac8"/><rect x="170" y="24" width="320" height="372" rx="4" fill="none" stroke="#e1b863"/>
+    <rect x="270" y="52" width="200" height="22" fill="#145a73"/>
+    <rect x="198" y="52" width="58" height="72" fill="#fff" stroke="#145a73"/><circle cx="227" cy="80" r="12" fill="#9db9c4"/><path d="M204 122c2-20 46-20 48 0z" fill="#9db9c4"/>
+    <g stroke="#145a73" stroke-width="1.2"><path d="M198 150h272M198 172h272M198 194h272M198 216h272M198 250h272M198 272h272M198 294h272M198 316h272M198 338h272"/></g>
+    <g fill="#145a73"><rect x="270" y="140" width="130" height="7"/><rect x="300" y="162" width="100" height="7"/><rect x="250" y="184" width="150" height="7"/><rect x="230" y="240" width="60" height="7"/><rect x="330" y="240" width="60" height="7"/><rect x="230" y="262" width="60" height="7"/></g>
+    <g><rect x="24" y="70" width="120" height="86" rx="3" fill="#fff"/><circle cx="84" cy="102" r="14" fill="#9db9c4"/><path d="M58 150c2-26 50-26 52 0z" fill="#9db9c4"/>
+    <rect x="24" y="176" width="120" height="86" rx="3" fill="#fff"/><circle cx="84" cy="208" r="14" fill="#c6a15a"/><path d="M58 256c2-26 50-26 52 0z" fill="#c6a15a"/>
+    <rect x="24" y="282" width="120" height="86" rx="3" fill="#fff"/><circle cx="84" cy="314" r="14" fill="#9db9c4"/><path d="M58 362c2-26 50-26 52 0z" fill="#9db9c4"/></g>
+    <g font-family="Public Sans,sans-serif" font-size="9" fill="#0c2a38"><rect x="24" y="148" width="120" height="14" fill="#e1b863"/><text x="30" y="158">1141…_ADOKO_Florent</text><rect x="24" y="254" width="120" height="14" fill="#e1b863"/><text x="30" y="264">1151…_AFFANOU_Sorel</text><rect x="24" y="360" width="120" height="14" fill="#e1b863"/><text x="30" y="370">1151…_ADANGLENON</text></g>
+    <path d="M148 213h18" stroke="#e1b863" stroke-width="2.5" stroke-linecap="round"/>
+  </svg>
+</div></div>
+<div class="facts"><div class="w">
+  <div><b>PDF, Excel, CSV</b>Formats de liste acceptés</div>
+  <div><b>matricule_nom_prénoms.jpg</b>Nommage des photos</div>
+  <div><b>Impression ou PDF</b>Fiches scolaires complètes</div>
+  <div><b>Sur votre appareil</b>Aucune donnée envoyée</div>
+</div></div>
+
+<section class="blk" id="fonctions"><div class="w">
+  <h2 class="t">Trois modules, une seule liste</h2>
+  <p class="lead">La liste des apprenants importée au départ alimente chacun des modules. Vous ne la saisissez qu'une fois.</p>
+  <div class="reg">
+    <a href="#outil" data-go="t1"><svg class="ic"><use href="#i-cam"/></svg><div><h3>Renommage des photos</h3><p>Les photos sont associées aux apprenants dans l'ordre de la liste alphabétique, puis téléchargées sous la forme matricule_nom_prénoms.jpg dans un seul fichier ZIP.</p></div><span class="st">Disponible</span></a>
+    <a href="#outil" data-go="t2"><svg class="ic"><use href="#i-doc"/></svg><div><h3>Fiche scolaire</h3><p>Identité, matricule, école, dates et résultats des classes antérieures sont reportés sur le modèle. La photo de l'apprenant est facultative.</p></div><span class="st">Disponible</span></a>
+    <a href="#outil" data-go="t3"><svg class="ic"><use href="#i-id"/></svg><div><h3>Fiche individuelle des candidats</h3><p>Une fiche remplie automatiquement avec les informations de chaque apprenant inscrit à un examen.</p></div><span class="st b">En préparation</span></a>
+  </div>
+</div></section>
+
+<section class="blk" id="methode" style="background:#fff"><div class="w">
+  <h2 class="t">Du fichier de liste aux documents imprimés</h2>
+  <p class="lead">Le travail se fait en trois temps, sans installation ni compte.</p>
+  <div class="steps">
+    <div><h3>Importer la liste</h3><p>Déposez le PDF, le fichier Excel ou le CSV de vos apprenants, puis vérifiez les colonnes reconnues.</p></div>
+    <div><h3>Ajouter les photos</h3><p>Sélectionnez toutes les photos en une fois. Elles sont distribuées dans l'ordre de la liste.</p></div>
+    <div><h3>Télécharger ou imprimer</h3><p>Récupérez le ZIP des photos renommées, ou imprimez les fiches scolaires en PDF.</p></div>
+  </div>
+</div></section>
+
+<div class="band" id="confidentialite"><div class="w">
+  <svg><use href="#i-lock"/></svg>
+  <div><h2>Les données des enfants restent chez vous</h2><p>Tout le traitement se fait dans votre navigateur. Ni la liste, ni les photos, ni les fiches ne sont envoyées sur un serveur.</p></div>
+</div></div>
+</main>
+<div class="noprint" id="outil">
+<div class="apphead"><h2>Espace de travail</h2><p>Importez la liste, puis choisissez le module à utiliser.</p></div>
+<main>
+  <!-- ===== LISTE DES APPRENANTS (commune aux 3 fonctionnalités) ===== -->
+  <div class="card">
+    <h2>Liste alphabétique des apprenants (PDF, Excel ou CSV)</h2>
+    <input type="file" id="listeFile" accept=".pdf,.xlsx,.xls,.csv">
+    <div class="row" style="margin-top:12px">
+      <div><label>Matricule</label><select id="gMat"></select></div>
+      <div><label>Nom</label><select id="gNom"></select></div>
+      <div><label>Prénom(s)</label><select id="gPre"></select></div>
+      <div><label>Date de naissance</label><select id="gNai"></select></div>
+      <div><label>Lieu de naissance</label><select id="gLie"></select></div>
+      <div><label>Sexe (facultatif)</label><select id="gSex"></select></div>
+    </div>
+    <div class="msg" id="msgListe"></div>
+    <div class="scroll" style="max-height:180px;margin-top:10px"><table id="listePreview"></table></div>
+  </div>
+</main>
+<nav id="tabs">
+  <button class="on" data-t="t1">1. Renommer les photos</button>
+  <button data-t="t2">2. Fiche scolaire</button>
+  <button data-t="t3">3. Fiche individuelle des candidats</button>
+</nav>
+<main>
+
+<!-- ===== FONCTIONNALITÉ 1 : RENOMMAGE DES PHOTOS ===== -->
+<section id="t1">
+  <div class="card">
+    <h2>Importer les photos (dans l'ordre de la liste)</h2>
+    <div class="row">
+      <div><label>Photos</label><input type="file" id="photoFiles" accept="image/*" multiple></div>
+      <div><label>Ordre des photos</label>
+        <select id="ordre">
+          <option value="nom">Par nom de fichier (IMG_001, IMG_002…)</option>
+          <option value="date">Par date de modification</option>
+          <option value="sel">Ordre de sélection</option>
+        </select></div>
+    </div>
+    <div class="msg" id="msgPhotos"></div>
+  </div>
+  <div class="card">
+    <h2>Vérifier puis télécharger</h2>
+    <div class="scroll"><table id="apercu"></table></div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn" id="dl" disabled>Télécharger les photos renommées (ZIP)</button>
+    </div>
+    <div class="msg" id="msgDl"></div>
+  </div>
+</section>
+
+<!-- ===== FONCTIONNALITÉ 2 : FICHE SCOLAIRE ===== -->
+<section id="t2" class="hide">
+  <div class="card">
+    <h2>Fiche scolaire</h2>
+    <div class="row">
+      <div style="flex:1;min-width:240px"><label>École</label><input type="text" id="fEcole" style="width:100%" value="Complexe Scolaire Privé SAINT KISITO EYRAM"></div>
+      <div><label>Délivrée le</label><input type="text" id="fDate" style="width:110px"></div>
+      <div><label>Classe actuelle</label><select id="fCur"></select></div>
+      <div><label>Moyenne min</label><input type="number" id="fMin" value="11" min="0" max="20" step="0.5"></div>
+      <div><label>Moyenne max</label><input type="number" id="fMax" value="17" min="0" max="20" step="0.5"></div>
+    </div>
+    <details><summary>Dates des classes (modifiables)</summary>
+      <table id="fDates" style="max-width:420px"></table>
+    </details>
+    <div class="row" style="margin-top:12px">
+      <label style="display:flex;gap:6px;align-items:center;margin:0;color:var(--txt)"><input type="checkbox" id="fUsePhoto"> Ajouter la photo des apprenants (facultatif)</label>
+    </div>
+    <div class="row hide" id="fPhotoBox" style="margin-top:8px">
+      <div><label>Photos (dans l'ordre de la liste)</label><input type="file" id="fPhotos" accept="image/*" multiple></div>
+      <div><label>Ordre des photos</label>
+        <select id="fOrdre">
+          <option value="nom">Par nom de fichier</option>
+          <option value="date">Par date de modification</option>
+          <option value="sel">Ordre de sélection</option>
+        </select></div>
+    </div>
+    <div class="msg" id="fMsgPh"></div>
+    <div class="row" style="margin-top:12px">
+      <div><label>Aperçu de l'apprenant</label><select id="fSel"></select></div>
+      <button class="btn sec" id="fPrevBtn">Régénérer les moyennes</button>
+    </div>
+  </div>
+  <div class="card">
+    <div id="prevWrap"><div id="prev"></div></div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn" id="fAll" disabled>Imprimer / PDF : toutes les fiches</button>
+      <button class="btn sec" id="fOne" disabled>Cette fiche seulement</button>
+      <button class="btn sec" id="fBlank">Fiche vierge</button>
+    </div>
+    <div class="msg">Dans la fenêtre d'impression, choisissez « Enregistrer au format PDF », marges « Aucune », échelle 100 %.</div>
+  </div>
+</section>
+
+<!-- ===== FONCTIONNALITÉ 3 : FICHE INDIVIDUELLE DES CANDIDATS (à venir) ===== -->
+<section id="t3" class="hide">
+  <div class="card soon">
+    <h2>Fiche individuelle des candidats</h2>
+    Cette fonctionnalité sera ajoutée prochainement.<br>
+    La fiche sera remplie automatiquement avec les informations des apprenants (liste commune ci-dessus).
+  </div>
+</section>
+</main>
+</div>
+<footer class="ft noprint"><div class="w"><span>Gestion des apprenants</span><span>Outil à usage scolaire. Les données ne quittent pas votre appareil.</span></div></footer>
+<div id="pz"></div>
+
+<script>
+const state={headers:[],rows:[],photos:[],map:{}};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+// ---------- Classes et dates (conservées de l'exemplaire fourni) ----------
+const NIVEAUX=[
+ {k:'MAT1',t:'PREMIÈRE ANNÉE',du:'07/09/2019',au:'28/06/2020'},
+ {k:'MAT2',t:'DEUXIÈME ANNÉE',du:'28/09/2020',au:'01/07/2021'},
+ {k:'CI',t:"COURS D'INITIATION (CI)",du:'20/09/2021',au:'01/07/2022'},
+ {k:'CP',t:'COURS PRÉPARATOIRE (CP)',du:'19/09/2022',au:'30/06/2023'},
+ {k:'CE1',t:'COURS ÉLÉMENTAIRE 1ère ANNÉE (CE1)',du:'18/09/2023',au:'28/06/2024'},
+ {k:'CE2',t:'COURS ÉLÉMENTAIRE 2ème ANNÉE (CE2)',du:'16/09/2024',au:'27/06/2025'},
+ {k:'CM1',t:'COURS MOYEN 1ère ANNÉE (CM1)',du:'15/09/2025',au:'26/06/2026'},
+ {k:'CM2',t:'COURS MOYEN 2ème ANNÉE (CM2)',du:'14/09/2026',au:'25/06/2027'}
+];
+
+// ---------- Onglets ----------
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('on',x===b));
+  ['t1','t2','t3'].forEach(t=>$(t).classList.toggle('hide',t!==b.dataset.t));
+  if(b.dataset.t==='t2')renderPreview();
+});
+
+// ---------- Outils ----------
+function clean(s){return String(s??'').trim().replace(/[\\/:*?"<>|]/g,'').replace(/\s+/g,'-');}
+function fmtDate(v){
+  if(typeof v==='number'&&v>20000){const d=new Date(Math.round((v-25569)*864e5));
+    return String(d.getUTCDate()).padStart(2,'0')+'/'+String(d.getUTCMonth()+1).padStart(2,'0')+'/'+d.getUTCFullYear();}
+  return String(v??'').trim();
+}
+function nomFichier(r){
+  const m=state.map;
+  return [clean(r[m.mat]),clean(r[m.nom]),clean(r[m.pre])].filter(Boolean).join('_')+'.jpg';
+}
+// Apprenant i -> objet utilisé par la fiche
+function getS(i){
+  const r=state.rows[i],m=state.map; if(!r)return null;
+  let nai=fmtDate(r[m.nai]);
+  const lie=m.lie&&m.lie!==m.nai?String(r[m.lie]??'').trim():'';
+  if(lie)nai+=(nai?' à ':'')+lie;
+  return {mat:String(r[m.mat]??'').trim(),
+    nom:(String(r[m.nom]??'').trim().toUpperCase()+' '+String(r[m.pre]??'').trim()).trim(),
+    nai,sexe:/^f/i.test(String(r[m.sex]??'').trim())?'F':'M'};
+}
+
+// ---------- Lecture d'une liste PDF ----------
+async function lirePdf(file){
+  pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  const pdf=await pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise;
+  const lignes=[];
+  for(let p=1;p<=pdf.numPages;p++){
+    const items=(await (await pdf.getPage(p)).getTextContent()).items.filter(i=>i.str.trim()!=='');
+    const groupes=[];
+    items.forEach(it=>{
+      const y=it.transform[5];
+      let g=groupes.find(g=>Math.abs(g.y-y)<3);
+      if(!g){g={y,items:[]};groupes.push(g);}
+      g.items.push(it);
+    });
+    groupes.sort((a,b)=>b.y-a.y).forEach(g=>{
+      g.items.sort((a,b)=>a.transform[4]-b.transform[4]);
+      const cells=[];let fin=null;
+      g.items.forEach(it=>{
+        const x=it.transform[4];
+        if(fin!==null&&x-fin<=6){
+          const d=cells[cells.length-1];
+          cells[cells.length-1]=d+(d.endsWith(' ')||it.str.startsWith(' ')?'':' ')+it.str;
+        }else cells.push(it.str);
+        fin=x+it.width;
+      });
+      lignes.push(cells.map(c=>c.trim()));
+    });
+  }
+  const freq={};lignes.forEach(l=>freq[l.length]=(freq[l.length]||0)+1);
+  const n=+Object.keys(freq).sort((a,b)=>freq[b]-freq[a])[0];
+  const ent=lignes.find(l=>l.length===n);
+  return lignes.filter(l=>l.length===n&&(l===ent||l.join('|')!==ent.join('|')));
+}
+
+// ---------- Import de la liste (commun aux 3 fonctionnalités) ----------
+const SEL={mat:'gMat',nom:'gNom',pre:'gPre',nai:'gNai',lie:'gLie',sex:'gSex'};
+$('listeFile').onchange=async e=>{
+  const f=e.target.files[0]; if(!f)return;
+  try{
+    let data;
+    if(/\.pdf$/i.test(f.name))data=await lirePdf(f);
+    else{
+      const wb=XLSX.read(await f.arrayBuffer(),{type:'array'});
+      data=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:''});
+    }
+    const hi=data.findIndex(r=>r.filter(c=>String(c).trim()!=='').length>=2);
+    state.headers=data[hi].map((h,i)=>String(h).trim()||'Colonne '+(i+1));
+    state.rows=data.slice(hi+1).filter(r=>r.some(c=>String(c).trim()!=='')).map(r=>{
+      const o={};state.headers.forEach((h,i)=>o[h]=r[i]??'');return o;});
+    const opts=state.headers.map(h=>`<option>${esc(h)}</option>`).join('');
+    Object.values(SEL).forEach(id=>$(id).innerHTML=(/gLie|gSex|gNai/.test(id)?'<option value="">— aucune —</option>':'')+opts);
+    const g=(re,id,fb)=>{const h=state.headers.find(x=>re.test(x.toLowerCase()));$(id).value=h||(fb!==undefined?state.headers[fb]:'')||'';};
+    g(/matricule|mle|^mat/,'gMat',0);g(/^nom|^name/,'gNom',1);g(/pr[ée]nom/,'gPre',2);
+    g(/naiss|^date/,'gNai');g(/lieu/,'gLie');g(/sexe|genre/,'gSex');
+    $('msgListe').innerHTML=`<span class="ok">${state.rows.length} apprenants importés.</span> Vérifiez les colonnes choisies.`;
+    $('listePreview').innerHTML='<tr>'+state.headers.map(h=>`<th>${esc(h)}</th>`).join('')+'</tr>'+
+      state.rows.slice(0,5).map(r=>'<tr>'+state.headers.map(h=>`<td>${esc(r[h])}</td>`).join('')+'</tr>').join('');
+    majTout();
+  }catch(err){$('msgListe').innerHTML='<span class="err">Fichier illisible. Utilisez un PDF contenant du texte (pas une image scannée), un Excel (.xlsx) ou un CSV.</span>';}
+};
+Object.values(SEL).forEach(id=>$(id).onchange=majTout);
+function majTout(){
+  for(const k in SEL)state.map[k]=$(SEL[k]).value;
+  const cur=$('fSel').value;
+  $('fSel').innerHTML=state.rows.map((r,i)=>`<option value="${i}">${esc(getS(i).nom)}</option>`).join('');
+  if(cur&&state.rows[cur])$('fSel').value=cur;
+  $('fAll').disabled=$('fOne').disabled=!state.rows.length;
+  refresh();msgPhotos();renderPreview();
+}
+
+// ---------- Fonctionnalité 1 : photos ----------
+function trier(arr,o){
+  const p=[...arr];
+  if(o==='nom')p.sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));
+  if(o==='date')p.sort((a,b)=>a.lastModified-b.lastModified);
+  return p;
+}
+function trierPhotos(){return trier(state.photos,$('ordre').value);}
+$('photoFiles').onchange=e=>{state.photos=[...e.target.files];refresh();};
+$('ordre').onchange=refresh;
+function refresh(){
+  const ph=trierPhotos(),n=state.rows.length;
+  let msg='';
+  if(state.photos.length){
+    const ok=ph.length===n;
+    msg=`<span class="${ok?'ok':'err'}">${ph.length} photos pour ${n} apprenants${ok?'':' : les nombres ne correspondent pas, le décalage touchera tous les suivants.'}</span>`;
+  }
+  $('msgPhotos').innerHTML=msg;
+  const max=Math.max(n,ph.length);
+  let h='<tr><th>#</th><th>Photo</th><th>Fichier d\'origine</th><th>Nouveau nom</th></tr>';
+  for(let i=0;i<max;i++){
+    const r=state.rows[i],f=ph[i];
+    h+=`<tr><td>${i+1}</td><td>${f?`<img src="${URL.createObjectURL(f)}">`:'—'}</td><td>${f?esc(f.name):'<span class="err">manquante</span>'}</td><td>${r?esc(nomFichier(r)):'<span class="err">pas d\'apprenant</span>'}</td></tr>`;
+  }
+  $('apercu').innerHTML=max?h:'';
+  $('dl').disabled=!(n&&ph.length);
+}
+function versJpg(file){
+  if(/jpe?g/i.test(file.type))return Promise.resolve(file);
+  return new Promise((res,rej)=>{
+    const img=new Image();img.onload=()=>{
+      const c=document.createElement('canvas');c.width=img.width;c.height=img.height;
+      c.getContext('2d').drawImage(img,0,0);c.toBlob(res,'image/jpeg',.95);};
+    img.onerror=rej;img.src=URL.createObjectURL(file);});
+}
+$('dl').onclick=async()=>{
+  const ph=trierPhotos(),zip=new JSZip(),used={};
+  const total=Math.min(ph.length,state.rows.length);
+  $('dl').disabled=true;
+  for(let i=0;i<total;i++){
+    let nom=nomFichier(state.rows[i]);
+    if(used[nom]){used[nom]++;nom=nom.replace(/\.jpg$/,`_${used[nom]}.jpg`);}else used[nom]=1;
+    zip.file(nom,await versJpg(ph[i]));
+    $('msgDl').textContent=`Traitement ${i+1}/${total}…`;
+  }
+  const blob=await zip.generateAsync({type:'blob'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='photos_renommees.zip';a.click();
+  $('msgDl').innerHTML=`<span class="ok">${total} photos renommées et téléchargées.</span>`;
+  $('dl').disabled=false;
+};
+
+// ---------- Fonctionnalité 2 : fiche scolaire ----------
+$('fCur').innerHTML=NIVEAUX.map((n,i)=>`<option value="${i}">${n.k}</option>`).join('');
+$('fCur').value=7; // CM2 : les classes avant CM2 sont complétées
+$('fDate').value=new Date().toLocaleDateString('fr-FR');
+$('fDates').innerHTML=NIVEAUX.map((n,i)=>`<tr><td>${n.k}</td><td><input type="text" data-i="${i}" data-f="du" value="${n.du}"></td><td><input type="text" data-i="${i}" data-f="au" value="${n.au}"></td></tr>`).join('');
+$('fDates').oninput=e=>{const t=e.target;NIVEAUX[t.dataset.i][t.dataset.f]=t.value;renderPreview();};
+['fEcole','fDate','fCur','fMin','fMax','fSel'].forEach(id=>$(id).oninput=renderPreview);
+// Photos facultatives sur la fiche : la photo n°i va à l'apprenant n°i
+state.fp=[];
+const urls=new WeakMap();
+const urlOf=f=>{if(!urls.has(f))urls.set(f,URL.createObjectURL(f));return urls.get(f);};
+function urlPhoto(i){
+  if(!$('fUsePhoto').checked||i===null)return '';
+  const f=trier(state.fp,$('fOrdre').value)[i];
+  return f?urlOf(f):'';
+}
+function msgPhotos(){
+  const n=state.rows.length,k=state.fp.length;
+  $('fMsgPh').innerHTML=!$('fUsePhoto').checked||!k?'':
+    `<span class="${k===n||!n?'ok':'err'}">${k} photos pour ${n} apprenants${k===n||!n?'':' : les photos sont distribuées dans l\'ordre, les fiches sans photo resteront sans photo.'}</span>`;
+}
+$('fUsePhoto').onchange=()=>{$('fPhotoBox').classList.toggle('hide',!$('fUsePhoto').checked);msgPhotos();renderPreview();};
+$('fPhotos').onchange=e=>{state.fp=[...e.target.files];msgPhotos();renderPreview();};
+$('fOrdre').oninput=renderPreview;
+let graine=0;
+$('fPrevBtn').onclick=()=>{graine++;renderPreview();};
+$('fAll').onclick=()=>imprimer(state.rows.map((_,i)=>i));
+$('fOne').onclick=()=>imprimer([+$('fSel').value||0]);
+$('fBlank').onclick=()=>imprimer([null]);
+window.addEventListener('resize',fit);
+
+function rng(seed){let a=0;for(const c of seed)a=(a*31+c.charCodeAt(0))|0;
+  return()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const app=m=>m<10?'Passable':m<12?'Assez-bien':m<14?'Bien':'Très bien';
+const ln=(...p)=>`<div class="ln">${p.join('')}</div>`;
+const v=(x,c)=>`<span class="v${c?' '+c:''}">${esc(x)}</span>`;
+
+// Un bloc de classe (sans rubrique de rang) + un second bloc vide (redoublement)
+function bloc(s,i,o,r){
+  const cur=o.cur;let ec='',mle='',du='',au='',a=['','',''],note='',obs='';
+  if(s&&i<=cur){ec=o.ecole;mle=s.mat;du=NIVEAUX[i].du;au=NIVEAUX[i].au;}
+  if(s&&i<cur){
+    const m=o.min+r()*(o.max-o.min);
+    note=m.toFixed(2)+'/20';
+    a=[0,1,2].map(()=>app(m+(r()*3-1.5)));
+    obs=s.sexe==='F'?'Admise en classe supérieure':'Admis en classe supérieure';
+  }
+  const un=(e,m,d,u,ap,n,ob)=>
+    ln('École',v(e,'s'),'N° mle',v(m,'m'),'du',v(d,'d'),'au',v(u,'d'))+
+    ln('Appréciations : Ass',v(ap[0]),'Tr',v(ap[1]),'C',v(ap[2]))+
+    ln('Notes',v(n,'w'))+
+    ln('Observations',v(ob));
+  return un(ec,mle,du,au,a,note,obs)+'<div style="height:6px"></div>'+un('','','','',['','',''],'','')+'<hr>';
+}
+
+function fiche(s,o,u){
+  const r=rng(s?s.mat+s.nom+graine:'vierge');
+  const B=i=>bloc(s,i,o,r);
+  const G=(i)=>`<div class="ttl">${esc(NIVEAUX[i].t)}</div>`+B(i);
+  const recto=`<div class="page">
+   <div class="col l"><table class="ex">
+     <tr><td colspan="5" class="bar" style="height:22px">EXAMENS SCOLAIRES DIVERS</td></tr>
+     <tr class="h"><td></td><td><b>C.E.P</b></td><td><b>C.E.T</b></td><td><b>C.F.R</b></td><td><b>Autres Examens</b></td></tr>
+     <tr class="a"><td><b>SESSION</b></td><td></td><td></td><td></td><td></td></tr>
+     <tr class="b"><td><b>RÉSULTATS</b></td><td></td><td></td><td></td><td></td></tr>
+     <tr><td><b>Signature du Directeur</b></td><td></td><td></td><td></td><td></td></tr>
+   </table></div>
+   <div class="col r">
+     ${u?`<div class="ph"><img src="${u}" alt=""></div>`:''}
+     <div style="text-align:center;font-weight:700;margin-bottom:6px">RÉPUBLIQUE DU BÉNIN</div>
+     <div style="font-weight:700;font-size:9px;margin-bottom:8px">MINISTÈRE DES ENSEIGNEMENTS<br>MATERNEL ET PRIMAIRE</div>
+     <div class="bar" style="width:60%;margin-left:auto;margin-bottom:8px;margin-top:${u?24:0}px">FICHE SCOLAIRE</div>
+     ${ln('Délivrée le',v(s?o.date:'','w'))}
+     ${ln('par',v(s?o.ecole:''))}
+     ${ln('Nom et prénoms (1)',v(s?s.nom:''))}
+     ${ln('Date et lieu de Naissance',v(s?s.nai:''))}
+     ${ln("Nature de la Pièce d'État Civil (2)",v(''))}
+     ${ln('Nom et Prénoms du Père ou Tuteur',v(''))}
+     ${ln('Profession, domicile du Père ou Tuteur',v(''))}
+     ${ln('Nom, Prénoms de la Mère',v(''))}
+     ${ln('Profession, domicile de la Mère',v(''))}
+     ${ln("Personne s'occupant de l'Enfant (4)",v(''))}
+     <hr style="margin-top:10px">
+     <div class="ttl" style="font-size:12px">ÉCOLE MATERNELLE</div>
+     ${G(0)}${G(1)}
+     <div class="fn">(1) Nom en capitale (2) Numéro, date, lieu<br>(3) Si le père est décédé (4) Personne s'occupant de l'enfant</div>
+   </div></div>`;
+  const verso=`<div class="page">
+   <div class="col l">${G(2)}${G(3)}${G(4)}</div>
+   <div class="col r">${G(5)}${G(6)}${G(7)}
+     <div class="ttl" style="margin-top:14px">OBSERVATIONS</div>
+     ${ln(v(''))}${ln(v(''))}${ln(v(''))}</div></div>`;
+  return recto+verso;
+}
+
+function opts(){
+  let mn=+$('fMin').value||0,mx=+$('fMax').value||20;if(mn>mx)[mn,mx]=[mx,mn];
+  return {ecole:$('fEcole').value,date:$('fDate').value,cur:+$('fCur').value,min:mn,max:mx};
+}
+function renderPreview(){
+  if($('t2').classList.contains('hide'))return;
+  const i=state.rows.length?(+$('fSel').value||0):null;
+  $('prev').innerHTML=fiche(i===null?null:getS(i),opts(),urlPhoto(i));
+  fit();
+}
+function fit(){
+  const k=Math.min(1,$('prevWrap').clientWidth/937);
+  $('prev').style.transform=`scale(${k})`;$('prev').style.transformOrigin='top left';
+  $('prevWrap').style.height=($('prev').offsetHeight*k)+'px';
+}
+async function imprimer(liste){
+  const o=opts();
+  $('pz').innerHTML=liste.map(i=>fiche(i===null?null:getS(i),o,urlPhoto(i))).join('');
+  await Promise.all([...$('pz').querySelectorAll('img')].map(im=>im.decode().catch(()=>{})));
+  window.print();
+}
+document.querySelectorAll('[data-go]').forEach(a=>a.addEventListener('click',()=>document.querySelector('#tabs button[data-t='+a.dataset.go+']').click()));
+majTout();
+</script>
+</body>
+</html>
